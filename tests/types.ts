@@ -90,6 +90,19 @@ export class Service9 extends TestUtil {
   }
 }
 
+@injectable({})
+export class Service9Prime extends TestUtil {
+  scv1: Service;
+  scv2: Service;
+
+  constructor(services = inject<Service[]>({ group: 'group_1' })) {
+    super();
+
+    this.scv1 = services[0];
+    this.scv2 = services[1];
+  }
+}
+
 @injectable({ group: 'group_2' })
 export class Service10 extends TestUtil {}
 

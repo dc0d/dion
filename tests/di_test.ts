@@ -11,6 +11,7 @@ import type {
   Service5,
   Service6,
   Service9,
+  Service9Prime,
 } from './types.ts';
 
 describe('inject', () => {
@@ -71,17 +72,32 @@ describe('Defining & registering services using injectable', () => {
     expect(constructorCalls.get('Service6')).toBe(1);
   });
 
-  it('Should create instances for all services in a group', () => {
-    const svc = inject<Service>({ tag: 'Service9' });
-    const sut: Service9 = svc as Service9;
+  describe('Singletons in groups', () => {
+    it('Should create instances for all services in a group', () => {
+      const svc = inject<Service>({ tag: 'Service9' });
+      const sut: Service9 = svc as Service9;
 
-    expect(sut.fetchStuff()).toBe('stuff from Service9');
-    expect(sut.scv1.fetchStuff()).toBe('stuff from Service7');
-    expect(sut.scv2.fetchStuff()).toBe('stuff from Service8');
+      expect(sut.fetchStuff()).toBe('stuff from Service9');
+      expect(sut.scv1.fetchStuff()).toBe('stuff from Service7');
+      expect(sut.scv2.fetchStuff()).toBe('stuff from Service8');
 
-    expect(constructorCalls.get('Service7')).toBe(1);
-    expect(constructorCalls.get('Service8')).toBe(1);
-    expect(constructorCalls.get('Service9')).toBe(1);
+      expect(constructorCalls.get('Service7')).toBe(1);
+      expect(constructorCalls.get('Service8')).toBe(1);
+      expect(constructorCalls.get('Service9')).toBe(1);
+    });
+
+    it('Should create instances for all services in a group', () => {
+      const svc = inject<Service>({ tag: 'Service9Prime' });
+      const sut: Service9Prime = svc as Service9Prime;
+
+      expect(sut.fetchStuff()).toBe('stuff from Service9Prime');
+      expect(sut.scv1.fetchStuff()).toBe('stuff from Service7');
+      expect(sut.scv2.fetchStuff()).toBe('stuff from Service8');
+
+      expect(constructorCalls.get('Service7')).toBe(1);
+      expect(constructorCalls.get('Service8')).toBe(1);
+      expect(constructorCalls.get('Service9Prime')).toBe(1);
+    });
   });
 
   it('Should use the name of the class if no tag is provided', () => {
