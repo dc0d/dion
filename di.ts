@@ -1,7 +1,3 @@
-type Context = {
-  kind: string;
-};
-
 type Tags = [string, ...string[]];
 
 type RegisteredClass = Readonly<{
@@ -18,7 +14,6 @@ const normalizeTags = (
   target: unknown,
 ): Tags => {
   let tagList: string[] = [];
-
   if (typeof tags === 'string') {
     if (tags !== '') {
       tagList = [tags];
@@ -34,7 +29,6 @@ const normalizeTags = (
   if (tagList.length === 0 && name) {
     tagList = [name];
   }
-
   if (tagList.length === 0) {
     throw new Error('No tags provided');
   }
@@ -47,14 +41,9 @@ export const injectable = (
     tags: Tags | string;
     group: string;
   }>,
-): (target: unknown, context: Context) => void => {
-  return (target: unknown, context: Context) => {
-    if (context.kind !== 'class') {
-      throw new Error(`@injectable can not be used on ${context.kind}`);
-    }
-
+): (target: unknown) => void => {
+  return (target: unknown) => {
     const { tags, group } = options;
-
     const tagList = normalizeTags(tags, target);
 
     for (const tag of tagList) {
@@ -92,19 +81,21 @@ const handleTag = <T extends unknown>(tag: string, singleton: boolean): T => {
   }
 
   const entry = classRegistry.get(tag);
-
   if (!entry) {
     throw new Error(`No service found for tag: ${tag}`);
   }
 
   const { target: item } = entry;
+  if (typeof item === 'function' && item?.prototype?.constructor) {
+    const instance = new (item as { new (): T })();
+    if (singleton) {
+      instances.set(tag, instance);
+    }
 
-  const instance = new (item as { new (): T })();
-  if (singleton) {
-    instances.set(tag, instance);
+    return instance;
   }
 
-  return instance;
+  throw new Error(`Unknown item in class registry: ${item}`);
 };
 
 const handleGroup = <T extends unknown>(
@@ -116,16 +107,19 @@ const handleGroup = <T extends unknown>(
   }
 
   const groupItems = groupRegistry.get(group);
-
   if (!groupItems) {
     throw new Error(`No service found for group: ${group}`);
   }
 
   const instances: T[] = [];
   for (const { target: item } of groupItems) {
-    const instance = new (item as { new (): T })();
-    if (singleton) {
-      instances.push(instance);
+    if (typeof item === 'function' && item?.prototype?.constructor) {
+      const instance = new (item as { new (): T })();
+      if (singleton) {
+        instances.push(instance);
+      }
+    } else {
+      throw new Error(`Unknown item in group registry: ${item}`);
     }
   }
 
