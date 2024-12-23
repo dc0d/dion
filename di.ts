@@ -1,3 +1,8 @@
+type Context = {
+  kind: string;
+  name: string | undefined;
+};
+
 type Tags = [string, ...string[]];
 
 type RegisteredClass = Readonly<{
@@ -43,8 +48,12 @@ export const injectable = (
     tags: Tags | string;
     group: string;
   }>,
-): (target: unknown) => void => {
-  return (target: unknown) => {
+): (target: unknown, context: Context) => void => {
+  return (target: unknown, context: Context) => {
+    if (context.kind !== 'class') {
+      throw new Error(`@injectable can not be used on ${context.kind}`);
+    }
+
     const { tags, group } = options;
 
     const tagList = normalizeTags(tags, target);
@@ -91,16 +100,12 @@ const handleTag = <T extends unknown>(tag: string, singleton: boolean): T => {
 
   const { target: item } = entry;
 
-  if (typeof item === 'function' && item?.prototype?.constructor) {
-    const instance = new (item as { new (): T })();
-    if (singleton) {
-      instances.set(tag, instance);
-    }
-
-    return instance;
+  const instance = new (item as { new (): T })();
+  if (singleton) {
+    instances.set(tag, instance);
   }
 
-  throw new Error(`Unknown item in class registry: ${item}`);
+  return instance;
 };
 
 const handleGroup = <T extends unknown>(
@@ -119,13 +124,9 @@ const handleGroup = <T extends unknown>(
 
   const instances: T[] = [];
   for (const { target: item } of groupItems) {
-    if (typeof item === 'function' && item?.prototype?.constructor) {
-      const instance = new (item as { new (): T })();
-      if (singleton) {
-        instances.push(instance);
-      }
-    } else {
-      throw new Error(`Unknown item in group registry: ${item}`);
+    const instance = new (item as { new (): T })();
+    if (singleton) {
+      instances.push(instance);
     }
   }
 
