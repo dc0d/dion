@@ -1,6 +1,7 @@
 {
   "name": "@dc0d/dion",
   "version": "0.1.0",
+  "license": "MIT",
   "exports": "./mod.ts",
   "tasks": {
     "cover-all": "deno run test-cover && deno run cover && deno run cover-lcov && deno run cover-html",
