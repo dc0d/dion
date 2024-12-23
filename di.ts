@@ -1,6 +1,5 @@
 type Context = {
   kind: string;
-  name: string | undefined;
 };
 
 type Tags = [string, ...string[]];
