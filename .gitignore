@@ -1,0 +1,7 @@
+/coverage/
+/cov_profile/
+/html_cov/
+/node_modules/
+
+coverage.lcov
+deno.lock

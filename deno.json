@@ -1,0 +1,15 @@
+{
+  "name": "@dc0d/dion",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "tasks": {
+    "cover-all": "deno run test-cover && deno run cover && deno run cover-lcov && deno run cover-html",
+    "test-cover": "rm -rf ./cov_profile && deno test --coverage=cov_profile",
+    "cover": "deno coverage --exclude='tests' cov_profile",
+    "cover-lcov": "rm -f coverage.lcov && deno coverage --exclude='tests' cov_profile --lcov > coverage.lcov",
+    "cover-html": "rm -rf ./html_cov && genhtml --ignore-errors inconsistent,category -o html_cov coverage.lcov"
+  },
+  "fmt": {
+    "singleQuote": true
+  }
+}
