@@ -153,3 +153,16 @@ export class Service14 extends TestUtil {
     this.scv2 = services[1];
   }
 }
+
+const CustomServiceAnnotation = (): (target: unknown) => void => {
+  return (target: unknown) => {
+    injectable({ tags: 'custom' })(target);
+  };
+};
+
+@CustomServiceAnnotation()
+export class Service15 extends TestUtil {
+  result() {
+    return 'custom service result';
+  }
+}

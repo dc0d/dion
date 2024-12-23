@@ -6,6 +6,7 @@ import { inject } from '../di.ts';
 import { constructorCalls } from './types.ts';
 import type {
   Service,
+  Service15,
   Service2,
   Service3,
   Service5,
@@ -115,5 +116,14 @@ describe('Defining & registering services using injectable', () => {
 
     expect(constructorCalls.get('Service10')).toBe(3);
     expect(constructorCalls.get('Service11')).toBe(3);
+  });
+});
+
+describe('Defining custom annotations', () => {
+  it('Should work with custom annotations', () => {
+    const svc = inject<Service>({ tag: 'custom' });
+    const sut: Service15 = svc as Service15;
+
+    expect(sut.result()).toBe('custom service result');
   });
 });
