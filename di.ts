@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-explicit-any
+
 type Tags = [string, ...string[]];
 
 type RegisteredClass = Readonly<{
@@ -124,10 +126,10 @@ const handleGroup = <T extends unknown>(
     throw new Error(`No service found for group: ${group}`);
   }
 
-  const instances: T[] = [];
+  const instances: any[] = [];
   for (const { target: item } of groupItems) {
     if (typeof item === 'function' && item?.prototype?.constructor) {
-      const instance = new (item as { new (): T })();
+      const instance = new (item as { new (): any })();
       if (singleton) {
         instances.push(instance);
       }
