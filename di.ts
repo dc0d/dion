@@ -36,6 +36,19 @@ const normalizeTags = (
   return tagList as Tags;
 };
 
+/**
+ * This is a decorator that registers a class as injectable.
+ *
+ * ```typescript
+ * @injectable({ tags: 'service_tag' })
+ * class Service {}
+ * ```
+ *
+ * At least one tag is required. The tag can be a string or an array of strings.
+ *
+ * @param options The tags and/or the group that refer to a class to be injected later as a dependency.
+ * @returns A decorator function.
+ */
 export const injectable = (
   options: Partial<{
     tags: Tags | string;
@@ -130,6 +143,14 @@ const handleGroup = <T extends unknown>(
   return instances as T;
 };
 
+/**
+ * This function injects a class based on the tag or group provided.
+ * If the tag is provided, it returns the class registered with that tag.
+ * If the group is provided, it returns an array of classes registered with that group.
+ *
+ * @param options A tag or a group to inject.
+ * @returns An instance of the class registered with the tag or the group.
+ */
 export const inject = <T extends unknown>(
   options: (OnlyTag | OnlyGroup) & Partial<{ singleton: boolean }>,
 ): T => {
