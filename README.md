@@ -88,6 +88,8 @@ export class Example {
 }
 ```
 
+The upside is the `Example` class has no knowledge of the actual implementations for `FirstDependency` or `SecondDependency` classes - unlike the JavaScript version - and depends only on the interface `Service` which they implement.
+
 # TODO
 
 - Better README.
