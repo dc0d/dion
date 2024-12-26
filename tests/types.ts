@@ -154,10 +154,8 @@ export class Service14 extends TestUtil {
   }
 }
 
-const CustomServiceAnnotation = (): (target: unknown) => void => {
-  return (target: unknown) => {
-    injectable({ tags: 'custom' })(target);
-  };
+const CustomServiceAnnotation = () => {
+  return injectable({ tags: 'custom' });
 };
 
 @CustomServiceAnnotation()

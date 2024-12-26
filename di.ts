@@ -1,5 +1,22 @@
 // deno-lint-ignore-file no-explicit-any
 
+type Constructor = { new (...args: any[]): NonNullable<unknown> };
+type Func = (...args: any[]) => any;
+
+type Context = {
+  kind: string;
+  name?: string;
+  static?: boolean;
+  private?: boolean;
+  metadata?: unknown;
+  addInitializer?(initializer: () => void): void;
+  access?: {
+    get?(...args: unknown[]): unknown;
+    set?(...args: unknown[]): void;
+    has?(...args: unknown[]): boolean;
+  };
+};
+
 type Tags = [string, ...string[]];
 
 type RegisteredClass = Readonly<{
@@ -51,13 +68,17 @@ const normalizeTags = (
  * @param options The tags and/or the group that refer to a class to be injected later as a dependency.
  * @returns A decorator function.
  */
-export const injectable = (
+export const injectable = <T extends Constructor>(
   options: Partial<{
     tags: Tags | string;
     group: string;
   }>,
-): (target: unknown) => void => {
-  return (target: unknown) => {
+): Func => {
+  return (target: T, context: Context) => {
+    if (context.kind !== 'class') {
+      throw new Error(`Invalid kind ${context.kind}`);
+    }
+
     const { tags, group } = options;
     const tagList = normalizeTags(tags, target);
 
@@ -101,19 +122,15 @@ const handleTag = <T extends unknown>(tag: string, singleton: boolean): T => {
   }
 
   const { target: item } = entry;
-  if (typeof item === 'function' && item?.prototype?.constructor) {
-    const instance = new (item as { new (): T })();
-    if (singleton) {
-      instances.set(tag, instance);
-    }
-
-    return instance;
+  const instance = new (item as { new (): T })();
+  if (singleton) {
+    instances.set(tag, instance);
   }
 
-  throw new Error(`Unknown item in class registry: ${item}`);
+  return instance;
 };
 
-const handleGroup = <T extends unknown>(
+const handleGroup = <T extends unknown[]>(
   group: string,
   singleton: boolean,
 ): T => {
@@ -128,13 +145,9 @@ const handleGroup = <T extends unknown>(
 
   const instances: any[] = [];
   for (const { target: item } of groupItems) {
-    if (typeof item === 'function' && item?.prototype?.constructor) {
-      const instance = new (item as { new (): any })();
-      if (singleton) {
-        instances.push(instance);
-      }
-    } else {
-      throw new Error(`Unknown item in group registry: ${item}`);
+    const instance = new (item as { new (): any })();
+    if (singleton) {
+      instances.push(instance);
     }
   }
 
@@ -164,7 +177,7 @@ export const inject = <T extends unknown>(
   if (tag) {
     return handleTag(tag, singleton);
   } else if (group) {
-    return handleGroup(group, singleton);
+    return handleGroup(group, singleton) as T;
   }
 
   throw new Error('Needs either tag or group');
