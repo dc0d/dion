@@ -7,6 +7,10 @@
 
 `dion` is a simple DI container - at this stage, a playground for trying out an idea.
 
+## example web api
+
+An example Git repository can be found [here](https://github.com/dc0d/dion-example).
+
 ## how to use
 
 This module provides a simple single-file dependency injection system.
